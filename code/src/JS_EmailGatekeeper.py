@@ -36,11 +36,22 @@ def extract_text_from_pdf(pdf_path):
 def extract_key_attributes(text):
     """Extract key information like loan numbers, dates, and amounts."""
     doc = nlp(text)
+    loan_numbers, dates, amounts = [], [], []
+    
+    for ent in doc.ents:
+        if ent.label_ == "CARDINAL" and len(ent.text) >= 6:
+            loan_numbers.append(ent.text)
+        elif ent.label_ == "DATE":
+            dates.append(ent.text)
+        elif ent.label_ == "MONEY":
+            amounts.append(ent.text)
+    
     return {
-        "loan_account_number": [ent.text for ent in doc.ents if ent.label_ == "MONEY"],
-        "dates": [ent.text for ent in doc.ents if ent.label_ == "DATE"],
-        "amounts": [ent.text for ent in doc.ents if ent.label_ == "MONEY"]
+        "loan_account_number": loan_numbers,
+        "dates": dates,
+        "amounts": amounts
     }
+    
 
 # Process dataset
 texts, labels = [], []
